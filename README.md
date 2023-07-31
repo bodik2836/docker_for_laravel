@@ -15,7 +15,7 @@ git clone git@github.com:bodik2836/docker_for_laravel.git .
 ### Step 3
 
 Remove .git directory and run "git init" if you need. \
-rm -rf .git
+rm -rf .git \
 rm www/.gitkeep
 
 ### Step 4
