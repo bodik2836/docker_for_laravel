@@ -54,17 +54,6 @@ services:
 ## For XHProf and Xdebug profiler traces
 #    - files:/mnt/files
 
-#  crond:
-#    image: wodby/drupal-php:$PHP_TAG
-#    container_name: "${PROJECT_NAME}_crond"
-#    environment:
-#      CRONTAB: "0 * * * * drush -r /var/www/html/web cron"
-#    command: sudo -E crond -f -d 0
-#    volumes:
-#    - ./www:/var/www/html:cached
-## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
-#    - drupal:/var/www/html
-
   nginx:
     image: wodby/nginx:$NGINX_TAG
     container_name: "${PROJECT_NAME}_nginx"
@@ -85,12 +74,42 @@ services:
     labels:
     - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
 
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}_pma"
+    environment:
+      PMA_HOST: $DB_HOST
+      UPLOAD_LIMIT: 1G
+    labels:
+      - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
+
   mailhog:
     image: mailhog/mailhog
     container_name: "${PROJECT_NAME}_mailhog"
     labels:
     - "traefik.http.services.${PROJECT_NAME}_mailhog.loadbalancer.server.port=8025"
     - "traefik.http.routers.${PROJECT_NAME}_mailhog.rule=Host(`mailhog.${PROJECT_BASE_URL}`)"
+
+  traefik:
+    image: traefik:v2.0
+    container_name: "${PROJECT_NAME}_traefik"
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "8000:80"
+    #    - '8080:8080' # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  #  crond:
+  #    image: wodby/drupal-php:$PHP_TAG
+  #    container_name: "${PROJECT_NAME}_crond"
+  #    environment:
+  #      CRONTAB: "0 * * * * drush -r /var/www/html/web cron"
+  #    command: sudo -E crond -f -d 0
+  #    volumes:
+  #    - ./www:/var/www/html:cached
+  ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
+  #    - drupal:/var/www/html
 
 #  postgres:
 #    image: wodby/postgres:$POSTGRES_TAG
@@ -152,15 +171,6 @@ services:
 #      ADMINER_DEFAULT_DB_NAME: $DB_NAME
 #    labels:
 #    - "traefik.http.routers.${PROJECT_NAME}_adminer.rule=Host(`adminer.${PROJECT_BASE_URL}`)"
-
-  pma:
-    image: phpmyadmin/phpmyadmin
-    container_name: "${PROJECT_NAME}_pma"
-    environment:
-      PMA_HOST: $DB_HOST
-      UPLOAD_LIMIT: 1G
-    labels:
-    - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
 
 #  solr:
 #    image: wodby/solr:$SOLR_TAG
@@ -286,16 +296,6 @@ services:
 #    - "--verbose"
 #    - "--whitelisted-ips="
 
-  traefik:
-    image: traefik:v2.0
-    container_name: "${PROJECT_NAME}_traefik"
-    command: --api.insecure=true --providers.docker
-    ports:
-    - "8000:80"
-#    - '8080:8080' # Dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
 #x-mutagen:
 #  sync:
 #    defaults:
@@ -315,8 +315,8 @@ services:
 #          defaultOwner: "id:501"
 #          defaultGroup: "id:20"
 
-volumes:
+#volumes:
 ## For macOS users (Mutagen)
 #  drupal:
 # For Xdebug profiler
-  files:
+#  files:
