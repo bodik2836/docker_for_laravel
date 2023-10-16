@@ -64,8 +64,8 @@ services:
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
       NGINX_SERVER_ROOT: /var/www/html/public
-      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
-    #      NGINX_DRUPAL_FILE_PROXY_URL: http://example.com
+#      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
+#      NGINX_DRUPAL_FILE_PROXY_URL: http://example.com
     volumes:
     - ./www:/var/www/html:cached
     - ./nginx/conf.d/:/etc/nginx/conf.d
