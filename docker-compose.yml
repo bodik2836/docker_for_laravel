@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3"
 
 services:
   mariadb:
@@ -16,21 +16,25 @@ services:
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # Use bind mount
 
   php:
-    image: wodby/drupal-php:$PHP_TAG
+    image: wodby/laravel-php:$PHP_TAG
     container_name: "${PROJECT_NAME}_php"
     environment:
+      APP_KEY: $APP_KEY
+      LARAVEL_APP_DEBUG: 'true'
+      PHP_MAIL_MIXED_LF_AND_CRLF: On
+
       SSMTP_MAILHUB: mailhog:1025
 #      SSMTP_MAILHUB: opensmtpd:25
-      PHP_SENDMAIL_PATH: '"/usr/bin/dos2unix -u | /usr/sbin/ssmtp -t -f"'
-#      DB_HOST: $DB_HOST
-#      DB_PORT: $DB_PORT
-#      DB_USER: $DB_USER
-#      DB_PASSWORD: $DB_PASSWORD
-#      DB_NAME: $DB_NAME
+      # PHP_SENDMAIL_PATH: '"/usr/bin/dos2unix -u | /usr/sbin/ssmtp -t -f"'
+      DB_HOST: $DB_HOST
+      DB_PORT: $DB_PORT
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME
 #      DB_DRIVER: $DB_DRIVER
 #      DRUSH_OPTIONS_URI: "http://${PROJECT_BASE_URL}:${PROJECT_PORT}"
-#      PHP_FPM_USER: wodby
-#      PHP_FPM_GROUP: wodby
+      PHP_FPM_USER: wodby
+      PHP_FPM_GROUP: wodby
 #      COLUMNS: 80 # Set 80 columns for docker exec -it.
 #      # Read instructions at https://wodby.com/docs/stacks/php/local/#xdebug
       PHP_XDEBUG: 1
@@ -47,6 +51,8 @@ services:
 #      SIMPLETEST_BASE_URL: "http://nginx"
 #      SIMPLETEST_DB: "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}#tests_"
 #      MINK_DRIVER_ARGS_WEBDRIVER: '["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chrome:9515"]'
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
     volumes:
     - ./www:/var/www/html:cached
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
@@ -64,7 +70,7 @@ services:
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
       NGINX_SERVER_ROOT: /var/www/html/public
-#      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
+      NGINX_VHOST_PRESET: php
 #      NGINX_DRUPAL_FILE_PROXY_URL: http://example.com
     volumes:
     - ./www:/var/www/html:cached
